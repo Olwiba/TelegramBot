@@ -1,0 +1,26 @@
+{
+  "name": "telegrambot",
+  "version": "1.0.0",
+  "description": "A telegram bot, created to post accountability messages, help set goals and much more!",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "node-schedule": "^2.1.1",
+    "node-telegram-bot-api": "^0.61.0",
+    "tzdata": "^1.0.40"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.11",
+    "@types/node-schedule": "^2.1.0",
+    "@types/node-telegram-bot-api": "^0.61.6",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  },
+  "author": "olwiba",
+  "license": "MIT"
+}
