@@ -53,8 +53,7 @@ bot.on('message', (msg) => {
 
   if (msg.text && msg.text.includes('health-check:koruclub')) {
     bot.sendMessage(channelId, 'pong')
-      .catch((error) => console.error('Error sending pong:', error));
-    }
+    .catch((error) => console.error('Error sending pong:', error));
   }
 
   if (msg.text && msg.text.includes('ping')) {
