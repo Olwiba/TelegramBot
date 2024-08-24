@@ -35,10 +35,25 @@ Share your insights and let's celebrate our growth! 🎉`;
 const mondayJob = schedule.scheduleJob({ hour: 9, minute: 0, dayOfWeek: 1, tz: 'Pacific/Auckland' }, sendMondayMessage);
 const fridayJob = schedule.scheduleJob({ hour: 16, minute: 0, dayOfWeek: 5, tz: 'Pacific/Auckland' }, sendFridayMessage);
 
-// Add ping/pong functionality for the channel
+// Handle direct messages
+bot.on('message', (msg) => {
+  console.log('Received direct message:', msg);
+  if (msg.text && msg.text.toLowerCase() === '/ping') {
+    console.log('Sending pong response to direct message');
+    bot.sendMessage(msg.chat.id, 'pong')
+      .then(() => console.log('Pong sent successfully to direct message'))
+      .catch((error) => console.error('Error sending pong to direct message:', error));
+  }
+});
+
+// Handle channel posts
 bot.on('channel_post', (msg) => {
+  console.log('Received channel post:', msg);
   if (msg.chat.id.toString() === channelId && msg.text && msg.text.toLowerCase() === 'ping') {
-    bot.sendMessage(channelId, 'pong');
+    console.log('Sending pong response to channel');
+    bot.sendMessage(channelId, 'pong')
+      .then(() => console.log('Pong sent successfully to channel'))
+      .catch((error) => console.error('Error sending pong to channel:', error));
   }
 });
 
