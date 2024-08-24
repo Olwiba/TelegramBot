@@ -51,22 +51,17 @@ bot.on('message', (msg) => {
   const chatId = msg.chat.id;
   console.log('Received message:', msg);
 
-  if (msg.text && msg.text.toLowerCase() === 'ping') {
+  if (msg.text && msg.text.includes('health-check:koruclub')) {
+    bot.sendMessage(channelId, 'pong')
+      .catch((error) => console.error('Error sending pong:', error));
+    }
+  }
+
+  if (msg.text && msg.text.includes('ping')) {
     bot.sendMessage(chatId, 'pong')
       .then(() => console.log('Pong sent successfully'))
       .catch((error) => console.error('Error sending pong:', error));
-  }
-});
-
-// Handle channel posts
-bot.on('channel_post', (msg) => {
-  console.log('Received channel post:', msg);
-
-  if (msg.chat.id.toString() === channelId && msg.text && msg.text.toLowerCase() === 'ping') {
-    bot.sendMessage(channelId, 'pong')
-      .then(() => console.log('Pong sent successfully to channel'))
-      .catch((error) => console.error('Error sending pong to channel:', error));
-  }
+    }
 });
 
 // Error handling
