@@ -35,6 +35,13 @@ Share your insights and let's celebrate our growth! 🎉`;
 const mondayJob = schedule.scheduleJob({ hour: 9, minute: 0, dayOfWeek: 1, tz: 'Pacific/Auckland' }, sendMondayMessage);
 const fridayJob = schedule.scheduleJob({ hour: 16, minute: 0, dayOfWeek: 5, tz: 'Pacific/Auckland' }, sendFridayMessage);
 
+// Add ping/pong functionality for the channel
+bot.on('channel_post', (msg) => {
+  if (msg.chat.id.toString() === channelId && msg.text && msg.text.toLowerCase() === 'ping') {
+    bot.sendMessage(channelId, 'pong');
+  }
+});
+
 console.log('Bot is running...');
 console.log('Monday message scheduled for:', mondayJob.nextInvocation().toString());
 console.log('Friday message scheduled for:', fridayJob.nextInvocation().toString());
