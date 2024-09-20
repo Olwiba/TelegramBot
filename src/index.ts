@@ -51,12 +51,12 @@ bot.on('message', (msg) => {
   const chatId = msg.chat.id;
   console.log('Received message:', msg);
 
-  if (msg.text && msg.text.includes('health-check:koruclub')) {
+  if (msg.text && msg.text === 'health-check:koruclub') {
     bot.sendMessage(channelId, 'pong')
     .catch((error) => console.error('Error sending pong:', error));
   }
 
-  if (msg.text && msg.text.includes('ping')) {
+  if (msg.text && msg.text === 'ping') {
     bot.sendMessage(chatId, 'pong')
       .then(() => console.log('Pong sent successfully'))
       .catch((error) => console.error('Error sending pong:', error));
