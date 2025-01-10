@@ -14,6 +14,7 @@
 - [x] Set custom weekly challenge: -10 points
 
 ### Commands
+- `/help` - Show all bot features and commands
 - `/points` - Shows points and streak
 - `/leaderboard` - Shows top 5 users
 - `/setchallenge [weekly|monthly] [description]` - Set a new challenge

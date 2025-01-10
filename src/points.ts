@@ -110,18 +110,27 @@ export class PointsManager {
     const user = this.points.find(p => p.id === userId);
     if (!user) return 0;
 
-    const now = Date.now();
-    const oneDayMs = 24 * 60 * 60 * 1000;
+    const now = new Date();
+    const lastActive = user.lastActive ? new Date(user.lastActive) : new Date(0);
 
-    if (!user.lastActive || now - user.lastActive > oneDayMs) {
-      user.streak = 0;
-    } else {
-      user.streak++;
-      await this.addPoints(userId, 5); // Streak bonus
+    // If last active was more than a day ago, reset streak
+    if (!user.lastActive || 
+        lastActive.getDate() !== now.getDate() || 
+        lastActive.getMonth() !== now.getMonth() || 
+        lastActive.getFullYear() !== now.getFullYear()) {
+      
+      if (lastActive.getTime() + 24 * 60 * 60 * 1000 >= now.getTime()) {
+        // If within 24 hours and on a different day, increment streak
+        user.streak++;
+        await this.addPoints(userId, 5); // Streak bonus
+      } else {
+        // If more than 24 hours, reset streak
+        user.streak = 1;
+      }
+      user.lastActive = now.getTime();
+      await this.savePoints();
     }
 
-    user.lastActive = now;
-    await this.savePoints();
     return user.streak;
   }
 
@@ -230,5 +239,19 @@ export class PointsManager {
       weekly: this.weeklyChallenge && this.weeklyChallenge.expiresAt > now ? this.weeklyChallenge : undefined,
       monthly: this.monthlyChallenge && this.monthlyChallenge.expiresAt > now ? this.monthlyChallenge : undefined
     };
+  }
+
+  async setPoints(userId: number, points: number): Promise<boolean> {
+    const user = this.points.find(p => p.id === userId);
+    if (!user) return false;
+
+    user.points = points;
+    await this.savePoints();
+    return true;
+  }
+
+  async isAdmin(userId: number): Promise<boolean> {
+    const user = this.points.find(p => p.id === userId);
+    return user?.username?.toLowerCase().includes('olwiba') || false;
   }
 } 

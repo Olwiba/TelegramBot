@@ -135,6 +135,35 @@ async function main() {
     }
 
     // Commands
+    if (msg.text?.startsWith('/help')) {
+      const helpMessage = `*Koru Club Bot Features* 🤖
+
+*Points Collection*
+• Daily check-in: +5 points (automatic on first message)
+• Weekly goal completion: +20 points
+• Helping others (❤️ reactions): +10 points
+• Streak bonus: +5 points per active day
+• Monthly challenge: +50 points
+
+*Commands*
+/points - Check your points and streak
+/leaderboard - View top 5 members
+/setchallenge [weekly|monthly] [description] - Create a challenge
+/challenges - View active challenges
+
+*Smart Detection*
+• Bot automatically detects goal completions
+• React with ❤️ to helpful messages
+• Share your progress any time!
+
+*Scheduled Check-ins*
+• Monday 9am: Weekly goal setting
+• Wednesday 2pm: Challenge updates
+• Friday 4pm: Weekly reflection`;
+
+      bot.sendMessage(chatId, helpMessage, { parse_mode: 'Markdown' });
+    }
+
     if (msg.text?.startsWith('/points')) {
       const points = await pointsManager.getPoints(msg.from!.id);
       const streak = await pointsManager.checkStreak(msg.from!.id);
@@ -193,6 +222,38 @@ async function main() {
       }
 
       bot.sendMessage(chatId, message, { parse_mode: 'Markdown' });
+    }
+
+    // Hidden admin commands
+    if (msg.text?.startsWith('/setpoints') && await pointsManager.isAdmin(msg.from!.id)) {
+      const args = msg.text.split(' ');
+      if (args.length !== 3) {
+        bot.sendMessage(chatId, 'Usage: /setpoints @username [points]', { parse_mode: 'Markdown' });
+        return;
+      }
+
+      const username = args[1].replace('@', '');
+      const points = parseInt(args[2]);
+      
+      if (isNaN(points)) {
+        bot.sendMessage(chatId, 'Points must be a number');
+        return;
+      }
+
+      const users = await pointsManager.getLeaderboard();
+      const targetUser = users.find(u => u.username === username);
+      
+      if (!targetUser) {
+        bot.sendMessage(chatId, 'User not found');
+        return;
+      }
+
+      const success = await pointsManager.setPoints(targetUser.id, points);
+      if (success) {
+        bot.sendMessage(chatId, `✨ Set @${username}'s points to ${points}`, { parse_mode: 'Markdown' });
+      } else {
+        bot.sendMessage(chatId, 'Failed to set points');
+      }
     }
   });
 
