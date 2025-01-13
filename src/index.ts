@@ -92,18 +92,18 @@ async function main() {
     console.log('Received message:', msg);
 
     // Daily check-in detection
-    if (msg.text && chatId.toString() === channelId) {
-      await pointsManager.checkStreak(msg.from!.id);
+    if (msg.text && msg.from?.id && chatId) {
+      await pointsManager.checkStreak(msg.from.id);
       
       // Check for daily check-in (first message of the day)
-      const success = await pointsManager.dailyCheckIn(msg.from!.id);
+      const success = await pointsManager.dailyCheckIn(msg.from.id);
       if (success) {
         bot.sendMessage(chatId, `🌟 +5 points`);
       }
 
       // Check for weekly goal completion pattern
-      const goalResult = await pointsManager.completeWeeklyGoal(msg.from!.id, msg.text);
-      if (goalResult.success) {
+      const goalResult = await pointsManager.completeWeeklyGoal(msg.from.id, msg.text);
+      if (goalResult.success && msg.from.username) {
         type MessageType = 'achievement' | 'percentage' | 'quality' | 'emoji' | 'status';
         const messages: Record<MessageType, string> = {
           achievement: '🎯 Epic achievement @${username}! Smashing those goals! +20 points',
@@ -114,14 +114,14 @@ async function main() {
         };
         
         const pattern = (goalResult.pattern || 'achievement') as MessageType;
-        const message = messages[pattern].replace('${username}', msg.from!.username!);
+        const message = messages[pattern].replace('${username}', msg.from.username);
         bot.sendMessage(chatId, message);
       }
 
       // Check for monthly challenge completion
-      const monthlyResult = await pointsManager.completeMonthlyChallenge(msg.from!.id, msg.text);
-      if (monthlyResult.success && monthlyResult.challenge) {
-        const message = `🏆 INCREDIBLE @${msg.from!.username}! You've completed the monthly challenge:\n` +
+      const monthlyResult = await pointsManager.completeMonthlyChallenge(msg.from.id, msg.text);
+      if (monthlyResult.success && monthlyResult.challenge && msg.from.username) {
+        const message = `🏆 INCREDIBLE @${msg.from.username}! You've completed the monthly challenge:\n` +
                        `"${monthlyResult.challenge.description}"\n\n` +
                        `+50 points awarded! Keep crushing it! 💪`;
         bot.sendMessage(chatId, message);
@@ -129,13 +129,13 @@ async function main() {
     }
 
     // Handle reactions for helping others
-    if (msg.reply_to_message && msg.text === '❤️') {
-      await pointsManager.rewardHelp(msg.reply_to_message.from!.id);
-      bot.sendMessage(chatId, `💖 @${msg.reply_to_message.from!.username} earned +10 points for helping!`);
+    if (msg.reply_to_message?.from?.id && msg.reply_to_message.from.username && msg.text === '❤️') {
+      await pointsManager.rewardHelp(msg.reply_to_message.from.id);
+      bot.sendMessage(chatId, `💖 @${msg.reply_to_message.from.username} earned +10 points for helping!`);
     }
 
     // Commands
-    if (msg.text?.startsWith('/help')) {
+    if (msg.text?.startsWith('/help') && chatId) {
       const helpMessage = `*Koru Club Bot Features* 🤖
 
 *Points Collection*
@@ -164,21 +164,21 @@ async function main() {
       bot.sendMessage(chatId, helpMessage, { parse_mode: 'Markdown' });
     }
 
-    if (msg.text?.startsWith('/points')) {
-      const points = await pointsManager.getPoints(msg.from!.id);
-      const streak = await pointsManager.checkStreak(msg.from!.id);
+    if (msg.text?.startsWith('/points') && msg.from?.id && chatId) {
+      const points = await pointsManager.getPoints(msg.from.id);
+      const streak = await pointsManager.checkStreak(msg.from.id);
       bot.sendMessage(chatId, `You have ${points} Koru points! 🌟\nCurrent streak: ${streak} days 🔥`);
     }
 
-    if (msg.text?.startsWith('/leaderboard')) {
+    if (msg.text?.startsWith('/leaderboard') && chatId) {
       const leaders = await pointsManager.getLeaderboard();
       const message = leaders.slice(0, 5)
-        .map((user: any, i: number) => `${i + 1}. ${user.username || 'Anonymous'}: ${user.points}`)
+        .map((user, i) => `${i + 1}. ${user.username || 'Anonymous'}: ${user.points}`)
         .join('\n');
       bot.sendMessage(chatId, `*Top Koru Points* 🏆\n\n${message}`, { parse_mode: 'Markdown' });
     }
 
-    if (msg.text?.startsWith('/setchallenge')) {
+    if (msg.text?.startsWith('/setchallenge') && msg.from?.id && msg.from.username && chatId) {
       const args = msg.text.split(' ');
       const type = args[1]?.toLowerCase();
       const description = args.slice(2).join(' ');
@@ -190,9 +190,9 @@ async function main() {
 
       let success = false;
       if (type === 'weekly') {
-        success = await pointsManager.setWeeklyChallenge(msg.from!.id, description);
+        success = await pointsManager.setWeeklyChallenge(msg.from.id, description);
       } else if (type === 'monthly') {
-        success = await pointsManager.setMonthlyChallenge(msg.from!.id, description);
+        success = await pointsManager.setMonthlyChallenge(msg.from.id, description);
       }
 
       if (success) {
@@ -202,7 +202,7 @@ async function main() {
       }
     }
 
-    if (msg.text?.startsWith('/challenges')) {
+    if (msg.text?.startsWith('/challenges') && chatId) {
       const challenges = pointsManager.getActiveChallenges();
       let message = '*Active Challenges* 🎯\n\n';
       
@@ -225,7 +225,7 @@ async function main() {
     }
 
     // Hidden admin commands
-    if (msg.text?.startsWith('/setpoints') && await pointsManager.isAdmin(msg.from!.id)) {
+    if (msg.text?.startsWith('/setpoints') && msg.from?.id && chatId && await pointsManager.isAdmin(msg.from.id)) {
       const args = msg.text.split(' ');
       if (args.length !== 3) {
         bot.sendMessage(chatId, 'Usage: /setpoints @username [points]', { parse_mode: 'Markdown' });

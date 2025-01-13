@@ -44,12 +44,18 @@ export class PointsManager {
   private readonly filePath = './data/points.json';
   private weeklyChallenge?: Challenge;
   private monthlyChallenge?: Challenge;
+  private reloadInterval?: NodeJS.Timeout;
 
   async init(bot: any, channelId: string) {
     await this.ensureDataDir();
     await this.loadPoints();
     const members = await bot.getChatAdministrators(channelId);
     await this.syncMembers(members);
+
+    // Reload points every 30 seconds
+    this.reloadInterval = setInterval(async () => {
+      await this.loadPoints();
+    }, 30000);
   }
 
   private async ensureDataDir() {
@@ -253,5 +259,11 @@ export class PointsManager {
   async isAdmin(userId: number): Promise<boolean> {
     const user = this.points.find(p => p.id === userId);
     return user?.username?.toLowerCase().includes('olwiba') || false;
+  }
+
+  async cleanup() {
+    if (this.reloadInterval) {
+      clearInterval(this.reloadInterval);
+    }
   }
 } 
