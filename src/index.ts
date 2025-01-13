@@ -98,7 +98,7 @@ async function main() {
       // Check for daily check-in (first message of the day)
       const success = await pointsManager.dailyCheckIn(msg.from.id);
       if (success) {
-        bot.sendMessage(chatId, `🌟 +5 points`);
+        // bot.sendMessage(chatId, `🌟 +5 points`);
       }
 
       // Check for weekly goal completion pattern
