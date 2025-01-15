@@ -21,28 +21,23 @@ Share below and let's crush this week together! 💪`;
 
 const sendWednesdayMessage = async () => {
   const challenges = pointsManager.getActiveChallenges();
-  let message = '*Mid-Week Challenge Check* 💫\n\n';
-  
-  if (challenges.weekly || challenges.monthly) {
-    message += 'Here are our active challenges:\n\n';
-    
-    if (challenges.weekly) {
-      message += `*Weekly Challenge*\n${challenges.weekly.description}\n\n`;
-    }
-    
-    if (challenges.monthly) {
-      message += `*Monthly Challenge*\n${challenges.monthly.description}\n\n`;
-    }
 
-    message += 'How\'s everyone tracking? Share your progress! 🎯';
-  } else {
-    message += 'No active challenges right now!\n\n';
-    message += 'Want to set one? Use:\n';
-    message += '/setchallenge weekly [description] (10 points)\n';
-    message += '/setchallenge monthly [description] (30 points)\n\n';
-    message += 'Let\'s make this week count! 💪';
+  // If there are no active challenges, don't send a message
+  if (!challenges.weekly && !challenges.monthly) {
+    return;
+  }
+
+  let message = '*Mid-Week Challenge Check* 💫\n\n';
+  message += 'Here are our active challenges:\n\n';
+    
+  if (challenges.weekly) {
+    message += `*Weekly Challenge*\n${challenges.weekly.description}\n\n`;
   }
   
+  if (challenges.monthly) {
+    message += `*Monthly Challenge*\n${challenges.monthly.description}\n\n`;
+  }
+
   bot.sendMessage(channelId, message, { parse_mode: 'Markdown' })
     .then(() => console.log('Wednesday message sent successfully'))
     .catch((error) => console.error('Error sending Wednesday message:', error));
